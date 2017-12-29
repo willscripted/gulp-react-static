@@ -6,7 +6,17 @@
 
 ```
 npm install --save-dev gulp-react-static
+touch .babelrc
 ```
+
+Make sure your `.bablerc` file includes all relevent presets and plugins you may require to render components in the source directory. Eg. 
+
+```javascript
+{
+  "presets": ["es2015", "react"]
+}
+```
+
 
 ## Usage
 
