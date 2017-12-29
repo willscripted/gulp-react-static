@@ -2,15 +2,21 @@
 `gulp-react-static`
 ===============
 
+Compile es6 react components into static html.
+
 ## Install
 
 ```
 npm install --save-dev gulp-react-static
-touch .babelrc
 ```
 
-Make sure your `.bablerc` file includes all relevent presets and plugins you may require to render components in the source directory. Eg. 
+##### Project dependencies
 
+```
+npm install --save-dev babel-preset-es2016 babel-preset-reacta react react-dom gulp
+```
+
+##### Example `.babelrc`
 ```javascript
 {
   "presets": ["es2015", "react"]
@@ -21,12 +27,14 @@ Make sure your `.bablerc` file includes all relevent presets and plugins you may
 ## Usage
 
 ```javascript
-const gulp = require('gulp')
+const gulp = require('gulp'),
+      rename = require('gulp-rename'),
       render = require('gulp-react-static');
 
 gulp.task('default', () => {
   return gulp.src('src/pages')
     .pipe(render())
+    .pipe(rename({extname: ".html"}))
     .pipe(gulp.dest);
 })
 ```
