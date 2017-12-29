@@ -12,7 +12,9 @@ function gulpRenderStaticPage(opts = {}) {
     }
 
     let component = require(file.path).default;
-    let html = ReactDOMServer.renderToStaticMarkup(React.createElement(component), {}, null);
+
+    let html = "<!DOCTYPE html>"
+      + ReactDOMServer.renderToStaticMarkup(React.createElement(component), {}, null);
 
     if (file.isBuffer()) {
       file.contents = Buffer.from(html, 'utf8');
