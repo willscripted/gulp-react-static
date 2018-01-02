@@ -1,7 +1,57 @@
 var through = require('through2');
-require('babel-register')
-var React = require('react')
-var ReactDOMServer = require('react-dom/server');
+var React = require.main.require('react')
+var ReactDOMServer = require.main.require('react-dom/server');
+var webpack = require('webpack');
+var MemoryFS = require('memory-fs');
+
+var path = require('path');
+var ExtractTextPlugin = require('extract-text-webpack-plugin');
+
+function getWebpackConfig(filePath) {
+  const extractSass = new ExtractTextPlugin({
+    filename: "styles.css",
+  });
+
+  return {
+    entry: [
+      filePath
+    ],
+    output: {
+      path: '/',
+      filename: "index.js",
+      libraryTarget: "umd",
+      library: "Bundle",
+      publicPath: '/'
+    },
+    resolve: {
+      extensions: [".js", ".jsx"]
+    },
+    module: {
+      rules: [{
+        test: /\.scss$/,
+        use: extractSass.extract({
+          use: [
+            { loader: "css-loader" },
+            { loader: "sass-loader" }
+          ]
+        })
+      },
+      {
+        test: /\.jsx?$/,
+        loader: 'babel-loader',
+        exclude: /node_modules/,
+        query: {
+          presets: ['es2016', 'react']
+        }
+      }
+      ]
+    },
+    target: "node",
+    plugins: [
+      extractSass
+    ]
+  }
+}
 
 function gulpRenderStaticPage(opts = {}) {
 
@@ -11,23 +61,33 @@ function gulpRenderStaticPage(opts = {}) {
       return cb(null, file);
     }
 
-    let component = require(file.path).default;
+    const fs = new MemoryFS();
+    const compiler = webpack(getWebpackConfig(file.path));
 
-    let html = "<!DOCTYPE html>"
-      + ReactDOMServer.renderToStaticMarkup(React.createElement(component), {}, null);
+    compiler.outputFileSystem = fs;
+    compiler.run((err, stats) => {
+      const js = fs.readFileSync('/index.js', "utf8");
+      const mod = new module.constructor;
+      mod._compile(js, './page.js');
+      let component = mod.exports.default;
 
-    if (file.isBuffer()) {
-      file.contents = Buffer.from(html, 'utf8');
-    }
+      let styles = fs.readFileSync('/styles.css', "utf8");
+      let html = "<!DOCTYPE html>"
+        + ReactDOMServer.renderToStaticMarkup(React.createElement(component), {}, null);
+      html = html.replace(/\{\{\{ +REACT_STATIC_STYLES +\}\}\}/, styles);
 
-    if (file.isStream()) {
-      var stream = through();
-      stream.write(html);
-      file.contents = stream;
-    }
+      if (file.isBuffer()) {
+        file.contents = Buffer.from(html, 'utf8');
+      }
 
-    cb(null, file);
+      if (file.isStream()) {
+        var stream = through();
+        stream.write(html);
+        file.contents = stream;
+      }
 
+      cb(null, file);
+    });
   });
 
 }
