@@ -7,22 +7,8 @@ Compile es6 react components into static html.
 ## Install
 
 ```
-npm install --save-dev gulp-react-static
+npm install --save-dev gulp gulp-react-static
 ```
-
-##### Project dependencies
-
-```
-npm install --save-dev babel-preset-es2016 babel-preset-react react react-dom gulp
-```
-
-##### Example `.babelrc`
-```javascript
-{
-  "presets": ["es2015", "react"]
-}
-```
-
 
 ## Usage
 
