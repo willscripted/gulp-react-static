@@ -1,6 +1,6 @@
 {
   "name": "gulp-react-static",
-  "version": "1.0.6",
+  "version": "1.0.7",
   "description": "Compile react pages to static markup",
   "main": "index.js",
   "scripts": {
